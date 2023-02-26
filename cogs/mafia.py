@@ -10,8 +10,8 @@ class CMDMafia(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="создание", aliases=["создать"], usage="создать")
-    async def create(self, ctx):
+    @commands.command(name="создание", aliases=["создать"], usage="создать <ссылка на сервер>", )
+    async def create(self, ctx, mafia_server_url=''):
         roles_dict = {
             1: 'mir',
             2: 'don',
@@ -68,7 +68,12 @@ class CMDMafia(commands.Cog):
                 if channel_member.id != creator_id and channel_member.voice.self_video:
                     voice_member_count += 1
                     members.append(channel_member.id)
-                    # await ctx.channel.send(channel_member.name)
+                elif ctx.guild.owner_id != channel_member.id and channel_member.id != creator_id:
+                    new_name = "Зр. " + channel_member.name
+                    await channel_member.edit(nick=f"{new_name}")
+                elif ctx.guild.owner_id != channel_member.id:
+                    new_name = "!Вед. " + channel_member.name
+                    await channel_member.edit(nick=f"{new_name}")
 
             roles = []
             for role_dict_key in roles_dict:
@@ -84,6 +89,8 @@ class CMDMafia(commands.Cog):
             roll_com = ''
             roll_doc = ''
             roll_man = ''
+            creator_embed_description = ''
+            members_embed_description = ''
             for i, member_id in enumerate(members):
                 member = ctx.guild.get_member(member_id)
                 if ctx.guild.owner_id == member_id:
@@ -116,9 +123,9 @@ class CMDMafia(commands.Cog):
                     task = roles_tasks_dict['mir']
 
                 if roles_dict[i + 1] == 'maf':
-                    embed_description = f"Ваша роль: **{role}**, Ваша задача: {task}. Удачи!\nСсылка на сервер мафии: https://discord.gg/eUgmMMs9"
+                    embed_description = f"Ваша роль: **{role}**, Ваша задача: {task}. Удачи!\nСсылка на сервер мафии: {mafia_server_url}"
                 elif roles_dict[i + 1] == 'don':
-                    embed_description = f"Ваша роль: **{role}**, Ваша задача: {task}. Удачи!\nСсылка на сервер мафии: https://discord.gg/eUgmMMs9"
+                    embed_description = f"Ваша роль: **{role}**, Ваша задача: {task}. Удачи!\nСсылка на сервер мафии: {mafia_server_url}"
                 else:
                     embed_description = f"Ваша роль: **{role}**, Ваша задача: {task}. Удачи!"
                 embed = disnake.Embed(
@@ -138,12 +145,21 @@ class CMDMafia(commands.Cog):
                 if roll_man != '':
                     creator_embed_description += f"\nМаньяк: {roll_man}"
 
-                creator_embed = disnake.Embed(
-                    title="Ролл",
-                    description=creator_embed_description,
-                    color=0xffffff
-                )
-                await creator.send(embed=creator_embed)
+                members_embed_description += f"{members_numbers_dict[i]}. {member.mention};\n"
+
+            creator_embed = disnake.Embed(
+                title="Ролл",
+                description=creator_embed_description,
+                color=0xffffff
+            )
+            await creator.send(embed=creator_embed)
+
+            members_embed = disnake.Embed(
+                title="Участники игры",
+                description=members_embed_description,
+                color=0xffffff
+            )
+            await ctx.reply(embed=members_embed)
 
 
 def setup(bot):

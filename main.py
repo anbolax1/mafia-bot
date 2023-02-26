@@ -3,7 +3,7 @@ import os
 import disnake
 from disnake.ext import commands
 
-bot = commands.Bot(command_prefix="!", help_command=None, intents=disnake.Intents.all(), test_guilds=[1046294792717475870])
+bot = commands.Bot(command_prefix="!", help_command=None, intents=disnake.Intents.all(), test_guilds=[1046294792717475870,1001894169326915695])
 
 CENSORED_WORDS = ["пидор","уебок","уёбок","уебок","уебан","гандон","пидр"]
 
