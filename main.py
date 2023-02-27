@@ -78,7 +78,7 @@ CENSORED_WORDS = ["пидор","уебок","уёбок","уебок","уеба�
 @client.command()
 @commands.is_owner()
 async def load(ctx, extension):
-	bot.load_extension(f"cogs.{extension}")
+	client.load_extension(f"cogs.{extension}")
 
 
 @client.command()
