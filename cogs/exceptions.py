@@ -15,7 +15,7 @@ class CMDExceptions(commands.Cog):
             await ctx.reply(f"{ctx.author}, у вас недостаточно прав для выполнения данной команды")
         elif isinstance(error, commands.UserInputError):
             await ctx.reply(embed=disnake.Embed(
-                description=f"Правильное использования команды: `{ctx.prefix}{ctx.command.name}` (<ссылка на сервер)\nExample: {ctx.prefix}{ctx.command.usage}"
+                description=f"Правильное использования команды: `{ctx.prefix}{ctx.command.name} {ctx.command.brief}`\nExample: `{ctx.prefix}{ctx.command.usage}`"
                 ))
 
 

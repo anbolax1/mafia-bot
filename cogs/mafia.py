@@ -1,4 +1,5 @@
 import random
+import sys
 
 import disnake
 from disnake.ext import commands
@@ -10,22 +11,22 @@ class CMDMafia(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="создание", aliases=["создать"], usage="создать <ссылка на сервер>", )
-    async def create(self, ctx, mafia_server_url=''):
-        roles_dict = {
-            1: 'mir',
-            2: 'don',
-            3: 'mir',
-            4: 'mir',
-            5: 'mir',
-            6: 'mir',
-            7: 'maf',
-            8: 'com',
-            9: 'mir',
-            10: 'maf',
-            11: 'doc',
-            12: 'man',
-        }
+    @commands.command(name="создать", aliases=["создание"], usage="создать https://discord.gg/fQc2nS2p", brief="<ссылка на сервер>")
+    async def create(self, ctx, mafia_server_url):
+        roles_list = [
+            'mir',
+            'don',
+            'mir',
+            'mir',
+            'mir',
+            'mir',
+            'maf',
+            'com',
+            'mir',
+            'maf',
+            'doc',
+            'man',
+        ]
 
         roles_tasks_dict = {
             'don': 'Убивать мирных жителей вместе со своей мафией и искать ночью комиссара, написав в лс ведущему *Я дон чек <номер игрока>*',
@@ -75,14 +76,12 @@ class CMDMafia(commands.Cog):
                     new_name = "!Вед. " + channel_member.name
                     await channel_member.edit(nick=f"{new_name}")
 
-            roles = []
-            for role_dict_key in roles_dict:
-                if role_dict_key > voice_member_count:
-                    break
-                else:
-                    roles.append(roles_dict[role_dict_key])
-
             random.shuffle(members)
+
+            # делаем срез списка ролей с 0 по кол-во участников и перемешиваем их
+            sliced_roles = roles_list[0:voice_member_count]
+            random.shuffle(sliced_roles)
+            print(sliced_roles)
 
             roll_maf = ''
             roll_don = ''
@@ -98,23 +97,23 @@ class CMDMafia(commands.Cog):
                 else:
                     await member.edit(nick=f"{members_numbers_dict[i]}. {member.name}")
 
-                if roles_dict[i + 1] == 'maf':
+                if sliced_roles[i] == 'maf':
                     roll_maf += f"{members_numbers_dict[i] }"
                     role = 'Мафия'
                     task = roles_tasks_dict['maf']
-                elif roles_dict[i + 1] == 'don':
+                elif sliced_roles[i] == 'don':
                     roll_don = f"{members_numbers_dict[i] }"
                     role = 'Дон мафии'
                     task = roles_tasks_dict['don']
-                elif roles_dict[i + 1] == 'com':
+                elif sliced_roles[i] == 'com':
                     roll_com = f"{members_numbers_dict[i] }"
                     role = 'Комиссар'
                     task = roles_tasks_dict['com']
-                elif roles_dict[i + 1] == 'doc':
+                elif sliced_roles[i] == 'doc':
                     roll_doc = f"{members_numbers_dict[i] }"
                     role = 'Доктор'
                     task = roles_tasks_dict['doc']
-                elif roles_dict[i + 1] == 'man':
+                elif sliced_roles[i] == 'man':
                     roll_man = f"{members_numbers_dict[i] }"
                     role = 'Маньяк'
                     task = roles_tasks_dict['man']
@@ -122,9 +121,9 @@ class CMDMafia(commands.Cog):
                     role = 'Мирный житель'
                     task = roles_tasks_dict['mir']
 
-                if roles_dict[i + 1] == 'maf':
+                if sliced_roles[i] == 'maf':
                     embed_description = f"Ваша роль: **{role}**, Ваша задача: {task}. Удачи!\nСсылка на сервер мафии: {mafia_server_url}"
-                elif roles_dict[i + 1] == 'don':
+                elif sliced_roles[i] == 'don':
                     embed_description = f"Ваша роль: **{role}**, Ваша задача: {task}. Удачи!\nСсылка на сервер мафии: {mafia_server_url}"
                 else:
                     embed_description = f"Ваша роль: **{role}**, Ваша задача: {task}. Удачи!"
