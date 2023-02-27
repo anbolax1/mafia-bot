@@ -1,9 +1,10 @@
 import os
+import keep_alive
 
 import disnake
 from disnake.ext import commands
 
-bot = commands.Bot(command_prefix="!", help_command=None, intents=disnake.Intents.all(), test_guilds=[1046294792717475870,1001894169326915695])
+client = commands.Bot(command_prefix="!", help_command=None, intents=disnake.Intents.all(), test_guilds=[1046294792717475870,1001894169326915695])
 
 CENSORED_WORDS = ["пидор","уебок","уёбок","уебок","уебан","гандон","пидр"]
 
@@ -74,26 +75,30 @@ CENSORED_WORDS = ["пидор","уебок","уёбок","уебок","уеба�
 # 	await inter.send(str(result))
 
 
-@bot.command()
+@client.command()
 @commands.is_owner()
 async def load(ctx, extension):
 	bot.load_extension(f"cogs.{extension}")
 
 
-@bot.command()
+@client.command()
 @commands.is_owner()
 async def unload(ctx, extension):
-	bot.unload_extension(f"cogs.{extension}")
+	client.unload_extension(f"cogs.{extension}")
 
 
-@bot.command()
+@client.command()
 @commands.is_owner()
 async def reload(ctx, extension):
-	bot.reload_extension(f"cogs.{extension}")
+	client.reload_extension(f"cogs.{extension}")
 
 
 for filename in os.listdir("cogs"):
 	if filename.endswith(".py"):
-		bot.load_extension(f"cogs.{filename[:-3]}")
+		client.load_extension(f"cogs.{filename[:-3]}")
 
-bot.run("MTA0NjQwNzk1ODY4ODQ1MjYzOA.GiIr4w.QlwqRvGxStXw-2iXYkNaI7ysHHZVjwQNMuD-Lg")
+# bot.run("MTA0NjQwNzk1ODY4ODQ1MjYzOA.GiIr4w.QlwqRvGxStXw-2iXYkNaI7ysHHZVjwQNMuD-Lg")
+
+keep_alive.keep_alive()
+
+client.run(os.environ.get('TOKEN'), reconnect=True)

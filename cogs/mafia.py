@@ -25,7 +25,7 @@ class CMDMafia(commands.Cog):
             'mir',
             'maf',
             'doc',
-            'man',
+            'maf',
         ]
 
         roles_tasks_dict = {
