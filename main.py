@@ -1,5 +1,12 @@
 import os
-import keep_alive
+import tabulate
+import sqlite3
+import discord
+import json
+
+from sqlite3 import Error
+from tabulate import tabulate
+# import keep_alive
 
 import disnake
 from disnake.ext import commands
@@ -8,6 +15,8 @@ client = commands.Bot(command_prefix="!", help_command=None, intents=disnake.Int
 
 CENSORED_WORDS = ["пидор","уебок","уёбок","уебок","уебан","гандон","пидр"]
 
+conn = sqlite3.connect("bot.db")
+cursor = conn.cursor()
 
 # запуск бота
 # @bot.event
@@ -97,8 +106,8 @@ for filename in os.listdir("cogs"):
 	if filename.endswith(".py"):
 		client.load_extension(f"cogs.{filename[:-3]}")
 
-# bot.run("MTA0NjQwNzk1ODY4ODQ1MjYzOA.GiIr4w.QlwqRvGxStXw-2iXYkNaI7ysHHZVjwQNMuD-Lg")
+client.run("MTA0NjQwNzk1ODY4ODQ1MjYzOA.GiIr4w.QlwqRvGxStXw-2iXYkNaI7ysHHZVjwQNMuD-Lg")
 
-keep_alive.keep_alive()
+# keep_alive.keep_alive()
 
-client.run(os.environ.get('TOKEN'), reconnect=True)
+# client.run(os.environ.get('TOKEN'), reconnect=True)

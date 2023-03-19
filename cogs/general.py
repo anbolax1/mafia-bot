@@ -30,8 +30,8 @@ class CMDUsers(commands.Cog):
         await ctx.reply("Привет! ты используешь COGS!")
 
     @commands.command()
-    async def clear(self, ctx, amount=20):
-        await ctx.channel.purge(limit=amount)
+    async def clear(self, ctx):
+        await ctx.channel.purge(limit=20)
 
 
 def setup(bot):

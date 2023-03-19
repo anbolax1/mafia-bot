@@ -5,6 +5,8 @@ import sys
 import disnake
 from disnake.ext import commands
 from array import *
+
+
 # from mafia_modal import MafiaModal
 
 
@@ -13,7 +15,8 @@ class CMDMafia(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="создать", aliases=["создание"], usage="создать https://discord.gg/fQc2nS2p", brief="<ссылка на сервер>")
+    @commands.command(name="создать", aliases=["создание"], usage="создать https://discord.gg/fQc2nS2p",
+                      brief="<ссылка на сервер>")
     async def create(self, ctx, mafia_server_url, amount=1):
         await ctx.channel.purge(limit=amount)
         roles_list = [
@@ -148,28 +151,29 @@ class CMDMafia(commands.Cog):
                         is_can_change_name = False
 
                 if not is_can_change_name:
-                    await ctx.channel.send(f"{member.mention}, поставьте себе слот **{members_numbers_dict[i]}.** перед ником")
+                    await ctx.channel.send(
+                        f"{member.mention}, поставьте себе слот **{members_numbers_dict[i]}.** перед ником")
                 else:
                     await member.edit(nick=f"{members_numbers_dict[i]}. {member.name}")
 
                 if sliced_roles[i] == 'maf':
-                    roll_maf += f"{members_numbers_dict[i] }"
+                    roll_maf += f"{members_numbers_dict[i]}"
                     role = 'Мафия'
                     task = roles_tasks_dict['maf']
                 elif sliced_roles[i] == 'don':
-                    roll_don = f"{members_numbers_dict[i] }"
+                    roll_don = f"{members_numbers_dict[i]}"
                     role = 'Дон мафии'
                     task = roles_tasks_dict['don']
                 elif sliced_roles[i] == 'com':
-                    roll_com = f"{members_numbers_dict[i] }"
+                    roll_com = f"{members_numbers_dict[i]}"
                     role = 'Комиссар'
                     task = roles_tasks_dict['com']
                 elif sliced_roles[i] == 'doc':
-                    roll_doc = f"{members_numbers_dict[i] }"
+                    roll_doc = f"{members_numbers_dict[i]}"
                     role = 'Доктор'
                     task = roles_tasks_dict['doc']
                 elif sliced_roles[i] == 'man':
-                    roll_man = f"{members_numbers_dict[i] }"
+                    roll_man = f"{members_numbers_dict[i]}"
                     role = 'Маньяк'
                     task = roles_tasks_dict['man']
                 else:
@@ -425,26 +429,6 @@ class CMDMafia(commands.Cog):
             # await ctx.send_modal()
             await ctx.edit_original_message(embed=members_embed)
 
-    @commands.slash_command()
-    async def ping(self, inter: disnake.CommandInteraction, url):
-        await inter.response.send_message('Pong!')
-
-    @commands.slash_command()
-    async def defer(self, inter: disnake.CommandInteraction):
-        await inter.response.defer()
-        await asyncio.sleep(10)
-        await inter.edit_original_message(content="Ожидание закончилось!")
-
-    @commands.slash_command(name='test')
-    async def slash_test(self, ctx):
-        await ctx.response.defer()
-        await asyncio.sleep(10)
-        await ctx.edit_original_message(content="Ожидание закончилось!")
-
-    # @commands.slash_command(name='modal')
-    # async def tags(self, ctx: disnake.AppCmdInter):
-    #     """Sends a Modal to create a tag."""
-    #     await ctx.response.send_modal(modal=MafiaModal())
 
 def setup(bot):
     bot.add_cog(CMDMafia(bot))
