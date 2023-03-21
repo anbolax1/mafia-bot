@@ -182,7 +182,9 @@ class FinishGameCog(commands.Cog):
         if game == 'game_not_exists':
             await ctx.send("Не найдено запущенной игры!")
         else:
-            avg_rating = getAvgRating(game[2])
+            if game[2] != 'nonrating':
+                avg_rating = getAvgRating(game[2])
+
             game_members = getGameMembers(game[0])
 
             start_points = 5

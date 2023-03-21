@@ -268,8 +268,8 @@ class CMDStatistics(commands.Cog):
                                  f"\nОбщее количество сыгранных игр: {member_games_count}, побед: {member_games_win_count} ({member_win_percent}%)" \
                                  f"\nКитти: {member_games_kitty_count}, побед: {member_games_kitty_win_count} ({member_win_kitty_percent}%)" \
                                  f"\nГородская: {member_games_city_count}, побед: {member_games_city_win_count} ({member_win_city_percent}%)" \
-                                 f"\nКлассическая: {member_games_kitty_count}, побед: {member_games_classic_win_count} ({member_win_classic_percent}%)" \
-                                 f"\nКастомная: {member_games_classic_count}, побед: {member_games_classic_win_count} ({member_win_custom_percent}%)" \
+                                 f"\nКлассическая: {member_games_classic_count}, побед: {member_games_classic_win_count} ({member_win_classic_percent}%)" \
+                                 f"\nКастомная: {member_games_custom_count}, побед: {member_games_custom_win_count} ({member_win_custom_percent}%)" \
                                  f"\nБезрейтинговая: {member_games_nonrating_count}, побед: {member_games_nonrating_win_count} ({member_win_nonrating_percent}%)" \
                                  f"\n" \
                                  f"\nБыл мирным {member_was_mir} раз(а), побед: {member_win_mir_count} ({member_win_mir_percent}%)" \
@@ -325,7 +325,7 @@ def getCreatedGameByUser(user_id):
     conn = sqlite3.connect("bot.db")
     cursor = conn.cursor()
 
-    return cursor.execute(f"SELECT * FROM games WHERE creator_id = '{user_id}'").fetchall()
+    return cursor.execute(f"SELECT * FROM games WHERE creator_id = '{user_id}' AND status = 'finished'").fetchall()
 
 
 def getMemberByDiscordId(user_id):
@@ -339,7 +339,7 @@ def getMemberGames(member_id):
     conn = sqlite3.connect("bot.db")
     cursor = conn.cursor()
 
-    return cursor.execute(f"SELECT * FROM game_members WHERE member_id = {member_id}").fetchall()
+    return cursor.execute(f"SELECT * FROM game_members LEFT JOIN games ON game_members.game_id = games.id WHERE member_id = {member_id} AND games.status ='finished'").fetchall()
 
 
 def getGameByGameId(game_id):
