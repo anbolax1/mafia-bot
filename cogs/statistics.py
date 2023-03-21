@@ -41,7 +41,7 @@ class CMDStatistics(commands.Cog):
                 classic_games_count += 1
             elif game_created_by_user[2] == 'custom':
                 custom_games_count += 1
-            elif game_created_by_user[2] == 'non-rating':
+            elif game_created_by_user[2] == 'nonrating':
                 nonrating_games_count += 1
 
         member_statistics = f"Пользователь: <@{user_id}>" \
@@ -183,7 +183,7 @@ class CMDStatistics(commands.Cog):
                     elif game[4] == 'man':
                         if member_game[3] == 'man':
                             member_games_custom_win_count += 1
-                elif game[2] == 'non-rating':
+                elif game[2] == 'nonrating':
                     member_games_nonrating_count += 1
                     if game[4] == 'maf':
                         if member_game[3] == 'maf' or member_game[3] == 'don':

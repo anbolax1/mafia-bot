@@ -80,7 +80,7 @@ class CreateGameCog(commands.Cog):
 
         creator_id = ctx.author.id
 
-        # если чел не бродкастер (id = 1003680754959650856), игра будет с типом non-rating,
+        # если чел не бродкастер (id = 1003680754959650856), игра будет с типом nonrating,
         creator = ctx.guild.get_member(creator_id)
         creator_roles = creator.roles
         is_broadcaster = False
@@ -92,7 +92,7 @@ class CreateGameCog(commands.Cog):
         members_limit = 0
         roles_list = None
         if is_broadcaster is not True:
-            game_id = addGameToDb(creator_id, 'non-rating', time_stamp, 'created')
+            game_id = addGameToDb(creator_id, 'nonrating', time_stamp, 'created')
             members_limit = 20
         elif view.value == 'kitty':
             game_id = addGameToDb(creator_id, view.value, time_stamp, 'created')
@@ -160,7 +160,7 @@ class FinishGameCog(commands.Cog):
             'city': 'Городская мафия',
             'classic': 'Классическая мафия',
             'custom': 'Кастомная мафия',
-            'non-rating': 'Безрейтинговая мафия',
+            'nonrating': 'Безрейтинговая мафия',
         }
 
         current_gmt = time.gmtime()
@@ -197,52 +197,57 @@ class FinishGameCog(commands.Cog):
 
                 game_member_role = game_member[3]
                 game_member_slot = game_member[4]
-                member_rating = getMemberRatingById(game_member[2], game[2])
-
                 member_discord_id = getMemberDiscordId(game_member[2])
-                member = ctx.guild.get_member(member_discord_id)
 
-                if float(member_rating) > float(avg_rating):
-                    if game_member[3] == view.value:
-                        win_delta = start_points
-                    elif game_member[3] == 'maf' and view.value == 'maf':
-                        win_delta = start_points
-                    elif game_member[3] == 'don' and view.value == 'maf':
-                        win_delta = start_points
-                    elif game_member[3] == 'com' and view.value == 'mir':
-                        win_delta = start_points
-                    elif game_member[3] == 'man' and view.value == 'man':
-                        win_delta = start_points
-                    elif game_member[3] == 'doc' and view.value == 'mir':
-                        win_delta = start_points
-                    else:
-                        lose_delta = start_points * delta_points
+                if (game[2] == 'nonrating'):
+                    member_rating = 'Безрейтинговая игра'
+                    new_member_rating = 'Безрейтинговая игра'
+                    result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**\n"
                 else:
-                    if game_member[3] == view.value:
-                        win_delta = start_points * delta_points
-                    elif game_member[3] == 'maf' and view.value == 'maf':
-                        win_delta = start_points * delta_points
-                    elif game_member[3] == 'don' and view.value == 'maf':
-                        win_delta = start_points * delta_points
-                    elif game_member[3] == 'com' and view.value == 'mir':
-                        win_delta = start_points * delta_points
-                    elif game_member[3] == 'man' and view.value == 'man':
-                        win_delta = start_points * delta_points
-                    elif game_member[3] == 'doc' and view.value == 'mir':
-                        win_delta = start_points * delta_points
+                    member_rating = getMemberRatingById(game_member[2], game[2])
+                    member = ctx.guild.get_member(member_discord_id)
+
+                    if float(member_rating) > float(avg_rating):
+                        if game_member[3] == view.value:
+                            win_delta = start_points
+                        elif game_member[3] == 'maf' and view.value == 'maf':
+                            win_delta = start_points
+                        elif game_member[3] == 'don' and view.value == 'maf':
+                            win_delta = start_points
+                        elif game_member[3] == 'com' and view.value == 'mir':
+                            win_delta = start_points
+                        elif game_member[3] == 'man' and view.value == 'man':
+                            win_delta = start_points
+                        elif game_member[3] == 'doc' and view.value == 'mir':
+                            win_delta = start_points
+                        else:
+                            lose_delta = start_points * delta_points
                     else:
-                        lose_delta = start_points
+                        if game_member[3] == view.value:
+                            win_delta = start_points * delta_points
+                        elif game_member[3] == 'maf' and view.value == 'maf':
+                            win_delta = start_points * delta_points
+                        elif game_member[3] == 'don' and view.value == 'maf':
+                            win_delta = start_points * delta_points
+                        elif game_member[3] == 'com' and view.value == 'mir':
+                            win_delta = start_points * delta_points
+                        elif game_member[3] == 'man' and view.value == 'man':
+                            win_delta = start_points * delta_points
+                        elif game_member[3] == 'doc' and view.value == 'mir':
+                            win_delta = start_points * delta_points
+                        else:
+                            lose_delta = start_points
 
-                if win_delta > 0:
-                    new_member_rating = float(member_rating) + win_delta
+                    if win_delta > 0:
+                        new_member_rating = float(member_rating) + win_delta
 
-                    updateMemberRating(game_member[2], new_member_rating, game[2])
-                    result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**, рейтинг: **{new_member_rating} (+{win_delta})**\n"
-                else:
-                    new_member_rating = float(member_rating) - lose_delta
+                        updateMemberRating(game_member[2], new_member_rating, game[2])
+                        result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**, рейтинг: **{new_member_rating} (+{win_delta})**\n"
+                    else:
+                        new_member_rating = float(member_rating) - lose_delta
 
-                    updateMemberRating(game_member[2], new_member_rating, game[2])
-                    result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**, рейтинг: **{new_member_rating} (-{lose_delta})**\n"
+                        updateMemberRating(game_member[2], new_member_rating, game[2])
+                        result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**, рейтинг: **{new_member_rating} (-{lose_delta})**\n"
 
             win_description = ''
             if view.value == 'mir':
@@ -490,7 +495,10 @@ async def set_game_roll(ctx, game_id, members_limit, mafia_server_url, roles_lis
             if roll_man != '':
                 creator_embed_description += f"\nМаньяк: {roll_man}"
 
-            member_rating = getMemberRating(game_type, member_discord_id)
+            if(game_type == 'nonrating'):
+                member_rating = 'Безрейтинговая игра'
+            else:
+                member_rating = getMemberRating(game_type, member_discord_id)
 
             members_embed_description += f"{members_numbers_dict[i]}. {member.mention} (рейтинг: {member_rating});\n"
 
@@ -513,7 +521,7 @@ async def set_game_roll(ctx, game_id, members_limit, mafia_server_url, roles_lis
             title = 'Классическая мафия'
         elif game_type == 'custom':
             title = 'Кастомная мафия'
-        elif game_type == 'non-rating':
+        elif game_type == 'nonrating':
             title = 'Безрейтинговая мафия'
 
         members_embed = disnake.Embed(
