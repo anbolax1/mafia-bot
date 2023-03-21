@@ -63,7 +63,7 @@ class CreateGameCog(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.slash_command(name="создать-тест")
+    @commands.slash_command(name="создать")
     async def createNewGame(self, ctx, mafia_server_url):
         await ctx.response.defer()
 
@@ -120,15 +120,21 @@ class FinishGameButtons(disnake.ui.View):
         self.value = None
 
     @disnake.ui.button(label='Победа мирных', style=disnake.ButtonStyle.green, emoji="❤")
-    async def kitty(self, button: disnake.ui.Button, inter: disnake.CommandInteraction):
+    async def win_mir(self, button: disnake.ui.Button, inter: disnake.CommandInteraction):
         # await inter.response.send_message('Вы создали Китти мафию')
         self.value = 'mir'
         self.stop()
 
     @disnake.ui.button(label='Победа мафии', style=disnake.ButtonStyle.green, emoji="🖤")
-    async def city(self, button: disnake.ui.Button, inter: disnake.CommandInteraction):
+    async def win_maf(self, button: disnake.ui.Button, inter: disnake.CommandInteraction):
         # await inter.response.send_message('Вы создали городскую мафию')
         self.value = 'maf'
+        self.stop()
+
+    @disnake.ui.button(label='Победа маньяка', style=disnake.ButtonStyle.green, emoji="💔")
+    async def win_man(self, button: disnake.ui.Button, inter: disnake.CommandInteraction):
+        # await inter.response.send_message('Вы создали городскую мафию')
+        self.value = 'man'
         self.stop()
 
 
@@ -154,6 +160,7 @@ class FinishGameCog(commands.Cog):
             'city': 'Городская мафия',
             'classic': 'Классическая мафия',
             'custom': 'Кастомная мафия',
+            'non-rating': 'Безрейтинговая мафия',
         }
 
         current_gmt = time.gmtime()
@@ -195,7 +202,7 @@ class FinishGameCog(commands.Cog):
                 member_discord_id = getMemberDiscordId(game_member[2])
                 member = ctx.guild.get_member(member_discord_id)
 
-                if float(member_rating) >= float(avg_rating):
+                if float(member_rating) > float(avg_rating):
                     if game_member[3] == view.value:
                         win_delta = start_points
                     elif game_member[3] == 'maf' and view.value == 'maf':
@@ -204,8 +211,8 @@ class FinishGameCog(commands.Cog):
                         win_delta = start_points
                     elif game_member[3] == 'com' and view.value == 'mir':
                         win_delta = start_points
-                    # elif game_member[3] == 'man' and view.value == 'man':
-                    #     win_delta = start_points
+                    elif game_member[3] == 'man' and view.value == 'man':
+                        win_delta = start_points
                     elif game_member[3] == 'doc' and view.value == 'mir':
                         win_delta = start_points
                     else:
@@ -219,8 +226,8 @@ class FinishGameCog(commands.Cog):
                         win_delta = start_points * delta_points
                     elif game_member[3] == 'com' and view.value == 'mir':
                         win_delta = start_points * delta_points
-                    # elif game_member[3] == 'man' and view.value == 'man':
-                    #     win_delta = start_points * delta_points
+                    elif game_member[3] == 'man' and view.value == 'man':
+                        win_delta = start_points * delta_points
                     elif game_member[3] == 'doc' and view.value == 'mir':
                         win_delta = start_points * delta_points
                     else:
@@ -458,7 +465,7 @@ async def set_game_roll(ctx, game_id, members_limit, mafia_server_url, roles_lis
                 task = roles_tasks_dict['mir']
 
             # добавляем участника в таблицу участников текущей игры
-            insertMemberIntoGameMembersTable(game_id, member_id, sliced_roles[i])
+            insertMemberIntoGameMembersTable(game_id, member_id, sliced_roles[i], members_numbers_dict[i])
 
             if sliced_roles[i] == 'maf':
                 embed_description = f"Ваша роль: **{role}**, Ваша задача: {task}. Удачи!\nСсылка на сервер мафии: {mafia_server_url}"
@@ -535,12 +542,12 @@ def insertMemberIntoMembersTable(member_discord_id):
     return member_id
 
 
-def insertMemberIntoGameMembersTable(game_id, member_id, member_role):
+def insertMemberIntoGameMembersTable(game_id, member_id, member_role, member_slot):
     conn = sqlite3.connect("bot.db")
     cursor = conn.cursor()
 
     cursor.execute(
-        f"INSERT INTO game_members (game_id, member_id, member_role) VALUES ({game_id}, {member_id}, '{member_role}')")
+        f"INSERT INTO game_members (game_id, member_id, member_role, member_slot) VALUES ({game_id}, {member_id}, '{member_role}', '{member_slot}')")
     conn.commit()
 
 
@@ -605,52 +612,6 @@ def updateMemberRating(game_member_id, new_rating, game_type):
     conn.commit()
 
 
-class CMDStats(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-
-    @commands.command(name="Статистика", aliases=["стата", "стат", "статистика"])
-    async def stats(self, ctx):
-        await ctx.response.defer()
-
-        conn = sqlite3.connect("bot.db")
-        cursor = conn.cursor()
-
-        user_id = ctx.author.id
-
-# Статистика будет выглядеть так:
-#
-# Ведущий:
-# Общее количество проведённых игр: n
-# Китти: n
-# Город: n
-# Классика: n
-# Кастом: n
-# Безрейтинговая: n
-#
-#
-# Участник:
-# Рейтинг:
-# Китти:
-# Город:
-# Классика:
-# Кастом:
-
-# Общее количество сыгранных игр: n
-# Китти: n, побед: m (k %)
-# Город: n, побед: m (k %)
-# Классика: n, побед: m (k %)
-# Кастом: n, побед: m (k %)
-# Безрейтинговая: n, побед: m (k %)
-
-# Был мирным n раз, побед m (k %)
-# Был мафией n раз, побед m (k %)
-# Был доном n раз, побед m (k %)
-# Был комиссаром n раз, побед m (k %)
-
-
-
 def setup(client):
     client.add_cog(CreateGameCog(client))
     client.add_cog(FinishGameCog(client))
-    client.add_cog(CMDStats(client))

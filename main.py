@@ -18,6 +18,13 @@ CENSORED_WORDS = ["пидор","уебок","уёбок","уебок","уеба�
 conn = sqlite3.connect("bot.db")
 cursor = conn.cursor()
 
+cursor.execute(f"CREATE TABLE IF NOT EXISTS game_members (id INTEGER PRIMARY KEY autoincrement, game_id INT, member_id INT, member_role TEXT, member_slot TEXT)")
+conn.commit()
+cursor.execute(f"CREATE TABLE IF NOT EXISTS games (id INTEGER PRIMARY KEY autoincrement, creator_id TEXT, type TEXT, status TEXT, win_status TEXT, started_at TEXT, finished_at TEXT)")
+conn.commit()
+cursor.execute(f"CREATE TABLE IF NOT EXISTS members (id INTEGER PRIMARY KEY autoincrement, discord_id TEXT, kitty_rating TEXT default '1000', city_rating TEXT default '1000', classic_rating TEXT default '1000', custom_rating TEXT default '1000')")
+conn.commit()
+
 # запуск бота
 # @bot.event
 # async def on_ready():
