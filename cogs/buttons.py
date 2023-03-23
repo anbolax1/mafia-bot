@@ -59,6 +59,14 @@ def addGameToDb(creator_id, game_type, time_stamp, status='created'):
     return game_id
 
 
+def deleteGameFromDb(creator_id):
+    conn = sqlite3.connect("bot.db")
+    cursor = conn.cursor()
+
+    cursor.execute(f"DELETE FROM games WHERE creator_id = '{creator_id}' AND status = 'created'")
+    conn.commit()
+
+
 class CreateGameCog(commands.Cog):
     def __init__(self, client):
         self.client = client
@@ -137,6 +145,12 @@ class FinishGameButtons(disnake.ui.View):
         self.value = 'man'
         self.stop()
 
+    @disnake.ui.button(label='Отмена игры', style=disnake.ButtonStyle.gray, emoji="💥")
+    async def cancel(self, button: disnake.ui.Button, inter: disnake.CommandInteraction):
+        # await inter.response.send_message('Вы создали городскую мафию')
+        self.value = 'cancel'
+        self.stop()
+
 
 class FinishGameCog(commands.Cog):
     def __init__(self, client):
@@ -176,107 +190,112 @@ class FinishGameCog(commands.Cog):
 
         creator_id = ctx.author.id
 
-        # обновляем статус игры
-        game = updateGameFinishStatus(creator_id, view.value, finished_at)
-
-        if game == 'game_not_exists':
-            await ctx.send("Не найдено запущенной игры!")
+        if view.value == 'cancel':
+            deleteGameFromDb(creator_id)
+            await ctx.send(f"Игра отменена ведущим <@{creator_id}>")
+            return
         else:
-            if game[2] != 'nonrating':
-                avg_rating = getAvgRating(game[2])
+            # обновляем статус игры
+            game = updateGameFinishStatus(creator_id, view.value, finished_at)
 
-            game_members = getGameMembers(game[0])
+            if game == 'game_not_exists':
+                await ctx.send("Не найдено запущенной игры!")
+            else:
+                if game[2] != 'nonrating':
+                    avg_rating = getAvgRating(game[2])
 
-            start_points = 5
-            delta_points = 1.5
+                game_members = getGameMembers(game[0])
 
-            result_members = ''
-            # если рейтинг участника выше среднего, то за победу ему начислится 5 поинтов, если меньше среднего, то 5*1.5
-            # если рейтинг участника выше среднего, то за поражение у него отнимется 5*1.5 поинтов; если ниже среднего, то 5
-            for game_member in game_members:
-                lose_delta = 0
-                win_delta = 0
+                start_points = 5
+                delta_points = 1.5
 
-                game_member_role = game_member[3]
-                game_member_slot = game_member[4]
-                member_discord_id = getMemberDiscordId(game_member[2])
+                result_members = ''
+                # если рейтинг участника выше среднего, то за победу ему начислится 5 поинтов, если меньше среднего, то 5*1.5
+                # если рейтинг участника выше среднего, то за поражение у него отнимется 5*1.5 поинтов; если ниже среднего, то 5
+                for game_member in game_members:
+                    lose_delta = 0
+                    win_delta = 0
 
-                if (game[2] == 'nonrating'):
-                    member_rating = 'Безрейтинговая игра'
-                    new_member_rating = 'Безрейтинговая игра'
-                    result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**\n"
-                else:
-                    member_rating = getMemberRatingById(game_member[2], game[2])
-                    member = ctx.guild.get_member(member_discord_id)
+                    game_member_role = game_member[3]
+                    game_member_slot = game_member[4]
+                    member_discord_id = getMemberDiscordId(game_member[2])
 
-                    if float(member_rating) > float(avg_rating):
-                        if game_member[3] == view.value:
-                            win_delta = start_points
-                        elif game_member[3] == 'maf' and view.value == 'maf':
-                            win_delta = start_points
-                        elif game_member[3] == 'don' and view.value == 'maf':
-                            win_delta = start_points
-                        elif game_member[3] == 'com' and view.value == 'mir':
-                            win_delta = start_points
-                        elif game_member[3] == 'man' and view.value == 'man':
-                            win_delta = start_points
-                        elif game_member[3] == 'doc' and view.value == 'mir':
-                            win_delta = start_points
-                        else:
-                            lose_delta = start_points * delta_points
+                    if (game[2] == 'nonrating'):
+                        member_rating = 'Безрейтинговая игра'
+                        new_member_rating = 'Безрейтинговая игра'
+                        result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**\n"
                     else:
-                        if game_member[3] == view.value:
-                            win_delta = start_points * delta_points
-                        elif game_member[3] == 'maf' and view.value == 'maf':
-                            win_delta = start_points * delta_points
-                        elif game_member[3] == 'don' and view.value == 'maf':
-                            win_delta = start_points * delta_points
-                        elif game_member[3] == 'com' and view.value == 'mir':
-                            win_delta = start_points * delta_points
-                        elif game_member[3] == 'man' and view.value == 'man':
-                            win_delta = start_points * delta_points
-                        elif game_member[3] == 'doc' and view.value == 'mir':
-                            win_delta = start_points * delta_points
+                        member_rating = getMemberRatingById(game_member[2], game[2])
+                        member = ctx.guild.get_member(member_discord_id)
+
+                        if float(member_rating) > float(avg_rating):
+                            if game_member[3] == view.value:
+                                win_delta = start_points
+                            elif game_member[3] == 'maf' and view.value == 'maf':
+                                win_delta = start_points
+                            elif game_member[3] == 'don' and view.value == 'maf':
+                                win_delta = start_points
+                            elif game_member[3] == 'com' and view.value == 'mir':
+                                win_delta = start_points
+                            elif game_member[3] == 'man' and view.value == 'man':
+                                win_delta = start_points
+                            elif game_member[3] == 'doc' and view.value == 'mir':
+                                win_delta = start_points
+                            else:
+                                lose_delta = start_points * delta_points
                         else:
-                            lose_delta = start_points
+                            if game_member[3] == view.value:
+                                win_delta = start_points * delta_points
+                            elif game_member[3] == 'maf' and view.value == 'maf':
+                                win_delta = start_points * delta_points
+                            elif game_member[3] == 'don' and view.value == 'maf':
+                                win_delta = start_points * delta_points
+                            elif game_member[3] == 'com' and view.value == 'mir':
+                                win_delta = start_points * delta_points
+                            elif game_member[3] == 'man' and view.value == 'man':
+                                win_delta = start_points * delta_points
+                            elif game_member[3] == 'doc' and view.value == 'mir':
+                                win_delta = start_points * delta_points
+                            else:
+                                lose_delta = start_points
 
-                    if win_delta > 0:
-                        new_member_rating = float(member_rating) + win_delta
+                        if win_delta > 0:
+                            new_member_rating = float(member_rating) + win_delta
 
-                        updateMemberRating(game_member[2], new_member_rating, game[2])
-                        result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**, рейтинг: **{new_member_rating} (+{win_delta})**\n"
-                    else:
-                        new_member_rating = float(member_rating) - lose_delta
+                            updateMemberRating(game_member[2], new_member_rating, game[2])
+                            result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**, рейтинг: **{new_member_rating} (+{win_delta})**\n"
+                        else:
+                            new_member_rating = float(member_rating) - lose_delta
 
-                        updateMemberRating(game_member[2], new_member_rating, game[2])
-                        result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**, рейтинг: **{new_member_rating} (-{lose_delta})**\n"
+                            updateMemberRating(game_member[2], new_member_rating, game[2])
+                            result_members += f"{game_member_slot}. <@{member_discord_id}>, роль: **{roles_descriptions[game_member[3]]}**, рейтинг: **{new_member_rating} (-{lose_delta})**\n"
 
-            win_description = ''
-            if view.value == 'mir':
-                win_description = '**Победа мирных!**'
-            elif view.value == 'maf':
-                win_description = '**Победа мафии!**'
-            elif view.value == 'man':
-                win_description = '**Победа маньяка!**'
+                win_description = ''
+                if view.value == 'mir':
+                    win_description = '**Победа мирных!**'
+                elif view.value == 'maf':
+                    win_description = '**Победа мафии!**'
+                elif view.value == 'man':
+                    win_description = '**Победа маньяка!**'
 
-            game_duration_in_sec = finished_at - int(game[5])
+                game_duration_in_sec = finished_at - int(game[5])
 
-            sec = game_duration_in_sec % (24 * 3600)
-            hour = sec // 3600
-            sec %= 3600
-            min = sec // 60
-            sec %= 60
+                sec = game_duration_in_sec % (24 * 3600)
+                hour = sec // 3600
+                sec %= 3600
+                min = sec // 60
+                sec %= 60
 
-            game_duration = f"%02d ч. %02d м. %02d с." % (hour, min, sec)
+                game_duration = f"%02d ч. %02d м. %02d с." % (hour, min, sec)
 
-            embed_description = f"{win_description}\n\n{result_members}\n\nПродолжительность игры: *{game_duration}*"
-            embed = disnake.Embed(
-                title=f"Результат игры, {game_type_descriptions[game[2]]}",
-                description=embed_description,
-                color=0xffffff
-            )
+                embed_description = f"{win_description}\n\n{result_members}\n\nПродолжительность игры: *{game_duration}*"
+                embed = disnake.Embed(
+                    title=f"Результат игры, {game_type_descriptions[game[2]]}",
+                    description=embed_description,
+                    color=0xffffff
+                )
 
-            await ctx.send(embed=embed)
+                await ctx.send(embed=embed)
 
 
 def updateGameFinishStatus(creator_id, win_status, finished_at):
