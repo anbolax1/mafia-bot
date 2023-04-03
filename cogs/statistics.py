@@ -274,7 +274,7 @@ class CMDStatistics(commands.Cog):
                                  f"\n" \
                                  f"\nБыл мирным {member_was_mir} раз(а), побед: {member_win_mir_count} ({member_win_mir_percent}%)" \
                                  f"\nБыл комиссаром {member_was_com} раз(а), побед: {member_win_com_count} ({member_win_com_percent}%)" \
-                                 f"\nБыл доктор ом {member_was_doc} раз(а), побед: {member_win_doc_count} ({member_win_doc_percent}%)" \
+                                 f"\nБыл доктором {member_was_doc} раз(а), побед: {member_win_doc_count} ({member_win_doc_percent}%)" \
                                  f"\nБыл доном {member_was_don} раз(а), побед: {member_win_don_count} ({member_win_don_percent}%)" \
                                  f"\nБыл мафией {member_was_maf} раз(а), побед: {member_win_maf_count} ({member_win_maf_percent}%)" \
                                  f"\nБыл маньяком {member_was_man} раз(а), побед: {member_win_man_count} ({member_win_man_percent}%)" \

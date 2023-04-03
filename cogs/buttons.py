@@ -383,7 +383,7 @@ async def set_game_roll(ctx, game_id, members_limit, mafia_server_url, roles_lis
 
     creator_voice = creator.voice
     if creator_voice is None:
-        await ctx.send(f"Создатель должен быть в голосовом чате!")
+        await ctx.send(f"Создатель должен быть в голосовом чате!", ephemeral=True)
     else:
         creator_channel_id = creator_voice.channel.id
         channel = ctx.guild.get_channel(creator_channel_id)
@@ -444,6 +444,7 @@ async def set_game_roll(ctx, game_id, members_limit, mafia_server_url, roles_lis
         # Получаем тип игры (Китти, город и т.д., чтобы добавить в эмбед)
         game_type = cursor.execute(f"SELECT type FROM games WHERE id = {game_id}").fetchone()[0]
 
+        print(f"Участники: {members}")
         for i, member_discord_id in enumerate(members):
             # добавляем участника в общую таблицу участников
             member_id = insertMemberIntoMembersTable(member_discord_id)
@@ -491,6 +492,7 @@ async def set_game_roll(ctx, game_id, members_limit, mafia_server_url, roles_lis
                 task = roles_tasks_dict['mir']
 
             # добавляем участника в таблицу участников текущей игры
+            print(f"Добавляем участника: game_id={game_id}, member_id={member_id}, role={sliced_roles[i]}, slot={members_numbers_dict[i]}")
             insertMemberIntoGameMembersTable(game_id, member_id, sliced_roles[i], members_numbers_dict[i])
 
             if sliced_roles[i] == 'maf':
@@ -552,7 +554,18 @@ async def set_game_roll(ctx, game_id, members_limit, mafia_server_url, roles_lis
         )
 
         # await ctx.send_modal()
+        members_count = getGameMembersCount(game_id)
+
+        await ctx.send(f"<@{creator_id}>, количество участников, записанных в базу = **{members_count}**.\nЕсли это количество не совпадает с фактическим количеством участников, пожалуйста, пересоздай игру, бот иногда хуйнёй страдает, спасибо бесплатному хостингу:)")
         await ctx.send(embed=members_embed)
+
+
+def getGameMembersCount(game_id):
+    conn = sqlite3.connect("bot.db")
+    cursor = conn.cursor()
+
+    members_count = cursor.execute(f"SELECT COUNT(*) FROM game_members where game_id = {game_id}").fetchone()[0]
+    return members_count
 
 
 def insertMemberIntoMembersTable(member_discord_id):
