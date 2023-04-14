@@ -46,12 +46,12 @@ class CMDStatistics(commands.Cog):
 
         member_statistics = f"Пользователь: <@{user_id}>" \
                             f"\n**__Ведущий__**" \
-                            f"\nОбщее количество проведённых игр: {games_created_by_user_count}" \
-                            f"\nКитти-мафия: {kitty_games_count}" \
-                            f"\nГородская мафия: {city_games_count}" \
-                            f"\nКлассическая мафия: {classic_games_count}" \
-                            f"\nКастомная мафия: {custom_games_count}" \
-                            f"\nБезрейтинговая мафия: {nonrating_games_count}"
+                            f"\nОбщее количество проведённых игр: **{games_created_by_user_count}**" \
+                            f"\nКитти-мафия: **{kitty_games_count}**" \
+                            f"\nГородская мафия: **{city_games_count}**" \
+                            f"\nКлассическая мафия: **{classic_games_count}**" \
+                            f"\nКастомная мафия: **{custom_games_count}**" \
+                            f"\nБезрейтинговая мафия: **{nonrating_games_count}**"
         # получаем участника
         member = getMemberByDiscordId(user_id)
 
@@ -260,24 +260,24 @@ class CMDStatistics(commands.Cog):
 
             member_statistics += f"\n\n**__Участник__**" \
                                  f"\n**Рейтинг**" \
-                                 f"\nКитти-мафия: {rating_kitty}" \
-                                 f"\nГородская мафия: {rating_city}" \
-                                 f"\nКлассическая мафия: {rating_classic}" \
-                                 f"\nКастомная: {rating_custom}" \
+                                 f"\nКитти-мафия: **{rating_kitty}**" \
+                                 f"\nГородская мафия: **{rating_city}**" \
+                                 f"\nКлассическая мафия: **{rating_classic}**" \
+                                 f"\nКастомная: **{rating_custom}**" \
                                  f"\n" \
-                                 f"\nОбщее количество сыгранных игр: {member_games_count}, побед: {member_games_win_count} ({member_win_percent}%)" \
-                                 f"\nКитти: {member_games_kitty_count}, побед: {member_games_kitty_win_count} ({member_win_kitty_percent}%)" \
-                                 f"\nГородская: {member_games_city_count}, побед: {member_games_city_win_count} ({member_win_city_percent}%)" \
-                                 f"\nКлассическая: {member_games_classic_count}, побед: {member_games_classic_win_count} ({member_win_classic_percent}%)" \
-                                 f"\nКастомная: {member_games_custom_count}, побед: {member_games_custom_win_count} ({member_win_custom_percent}%)" \
-                                 f"\nБезрейтинговая: {member_games_nonrating_count}, побед: {member_games_nonrating_win_count} ({member_win_nonrating_percent}%)" \
+                                 f"\nCыгранных игр: **{member_games_count}**, побед: **{member_games_win_count}** (**{round(member_win_percent, 2)}** %)" \
+                                 f"\nКитти: **{member_games_kitty_count}**, побед: **{member_games_kitty_win_count}** (**{round(member_win_kitty_percent, 2)}** %)" \
+                                 f"\nГородская: **{member_games_city_count}**, побед: **{member_games_city_win_count}** (**{round(member_win_city_percent, 2)}** %)" \
+                                 f"\nКлассическая: **{member_games_classic_count}**, побед: **{member_games_classic_win_count}** (**{round(member_win_classic_percent, 2)}** %)" \
+                                 f"\nКастомная: **{member_games_custom_count}**, побед: **{member_games_custom_win_count}** (**{round(member_win_custom_percent, 2)}** %)" \
+                                 f"\nБезрейтинговая: **{member_games_nonrating_count}**, побед: **{member_games_nonrating_win_count}** (**{round(member_win_nonrating_percent, 2)}** %)" \
                                  f"\n" \
-                                 f"\nБыл мирным {member_was_mir} раз(а), побед: {member_win_mir_count} ({member_win_mir_percent}%)" \
-                                 f"\nБыл комиссаром {member_was_com} раз(а), побед: {member_win_com_count} ({member_win_com_percent}%)" \
-                                 f"\nБыл доктором {member_was_doc} раз(а), побед: {member_win_doc_count} ({member_win_doc_percent}%)" \
-                                 f"\nБыл доном {member_was_don} раз(а), побед: {member_win_don_count} ({member_win_don_percent}%)" \
-                                 f"\nБыл мафией {member_was_maf} раз(а), побед: {member_win_maf_count} ({member_win_maf_percent}%)" \
-                                 f"\nБыл маньяком {member_was_man} раз(а), побед: {member_win_man_count} ({member_win_man_percent}%)" \
+                                 f"\nБыл мирным **{member_was_mir}** раз(а), побед: **{member_win_mir_count}** (**{round(member_win_mir_percent, 2)}** %)" \
+                                 f"\nБыл комиссаром **{member_was_com}** раз(а), побед: **{member_win_com_count}** (**{round(member_win_com_percent, 2)}** %)" \
+                                 f"\nБыл доктором **{member_was_doc}** раз(а), побед: **{member_win_doc_count}** (**{round(member_win_doc_percent, 2)}** %)" \
+                                 f"\nБыл доном **{member_was_don}** раз(а), побед: **{member_win_don_count}** (**{round(member_win_don_percent, 2)}** %)" \
+                                 f"\nБыл мафией **{member_was_maf}** раз(а), побед: **{member_win_maf_count}** (**{round(member_win_maf_percent, 2)}** %)" \
+                                 f"\nБыл маньяком **{member_was_man}** раз(а), побед: **{member_win_man_count}** (**{round(member_win_man_percent, 2)}** %)" \
 
         member_statistics_embed = disnake.Embed(
             title=f"Статистика",

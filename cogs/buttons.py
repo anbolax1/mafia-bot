@@ -119,6 +119,10 @@ class CreateGameCog(commands.Cog):
             members_limit = 20
             # await ctx.send("Создаём кастомную мафию!")
 
+        if game_id:
+            ctx.send(f"<@{creator_id}>, игра записана в базу (id = {game_id}).")
+        else:
+            ctx.send(f"<@{creator_id}>, игра в базу НЕ записана из-за какой-то хуйни, пересоздай плиз!")
         await set_game_roll(ctx, game_id, members_limit, mafia_server_url, roles_list)
 
 
