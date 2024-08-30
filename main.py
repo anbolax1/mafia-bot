@@ -13,8 +13,6 @@ from disnake.ext import commands
 
 client = commands.Bot(command_prefix="!", help_command=None, intents=disnake.Intents.all(), test_guilds=[1046294792717475870,1001894169326915695])
 
-CENSORED_WORDS = ["пидор","уебок","уёбок","уебок","уебан","гандон","пидр"]
-
 conn = sqlite3.connect("bot.db")
 cursor = conn.cursor()
 
